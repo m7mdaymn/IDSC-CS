@@ -18,15 +18,17 @@ internal sealed class GenericRepository<TEntity>
         _dbSet = context.Set<TEntity>();
     }
 
+
     public async Task<TEntity?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        return await _dbSet
+        return await GetQueryRoot()
             .FirstOrDefaultAsync(
                 entity => entity.Id == id,
                 cancellationToken);
     }
+
 
     public async Task<TEntity?> FirstOrDefaultAsync(
         ISpecification<TEntity> specification,
@@ -38,6 +40,7 @@ internal sealed class GenericRepository<TEntity>
                 cancellationToken);
     }
 
+
     public async Task<IReadOnlyList<TEntity>> ListAsync(
         ISpecification<TEntity> specification,
         CancellationToken cancellationToken = default)
@@ -47,6 +50,7 @@ internal sealed class GenericRepository<TEntity>
             .ToListAsync(
                 cancellationToken);
     }
+
 
     public async Task<bool> AnyAsync(
         ISpecification<TEntity> specification,
@@ -58,15 +62,20 @@ internal sealed class GenericRepository<TEntity>
                 cancellationToken);
     }
 
+
     public async Task<int> CountAsync(
         ISpecification<TEntity> specification,
         CancellationToken cancellationToken = default)
     {
-        return await ApplySpecification(
-                specification)
+        return await SpecificationEvaluator<TEntity>
+            .GetQuery(
+                GetQueryRoot(),
+                specification,
+                applyPaging: false)
             .CountAsync(
                 cancellationToken);
     }
+
 
     public async Task AddAsync(
         TEntity entity,
@@ -77,11 +86,13 @@ internal sealed class GenericRepository<TEntity>
             cancellationToken);
     }
 
+
     public void Update(
         TEntity entity)
     {
         _dbSet.Update(entity);
     }
+
 
     public void Remove(
         TEntity entity)
@@ -89,12 +100,32 @@ internal sealed class GenericRepository<TEntity>
         _dbSet.Remove(entity);
     }
 
+
     private IQueryable<TEntity> ApplySpecification(
         ISpecification<TEntity> specification)
     {
         return SpecificationEvaluator<TEntity>
             .GetQuery(
-                _dbSet.AsQueryable(),
+                GetQueryRoot(),
                 specification);
+    }
+
+
+    private IQueryable<TEntity> GetQueryRoot()
+    {
+        var query =
+            _dbSet.AsQueryable();
+
+        if (typeof(ISoftDeletable)
+            .IsAssignableFrom(typeof(TEntity)))
+        {
+            query =
+                query.Where(entity =>
+                    !EF.Property<bool>(
+                        entity,
+                        nameof(ISoftDeletable.IsDeleted)));
+        }
+
+        return query;
     }
 }

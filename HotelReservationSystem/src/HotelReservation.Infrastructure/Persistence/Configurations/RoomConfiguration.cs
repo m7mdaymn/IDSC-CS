@@ -12,38 +12,49 @@ public sealed class RoomConfiguration
     {
         builder.ToTable("Rooms");
 
-        builder.HasKey(room => room.Id);
 
-        builder.Property(room => room.RoomNumber)
+        builder.HasKey(room =>
+            room.Id);
+
+
+        builder.Property(room =>
+                room.RoomNumber)
             .IsRequired();
 
-        builder.HasIndex(room => room.RoomNumber)
+
+        builder.HasIndex(room =>
+                room.RoomNumber)
             .IsUnique();
 
-        builder.Property(room => room.PricePerDay)
+
+        builder.Property(room =>
+                room.PricePerDay)
             .HasPrecision(18, 2)
             .IsRequired();
 
-        builder.Property(room => room.IsReserved)
-            .HasDefaultValue(false)
+
+        builder.Property(room =>
+                room.IsReserved)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+
+        builder.Property(room =>
+                room.CreatedAtUtc)
             .IsRequired();
 
-        builder.Property(room => room.CustomerName)
-            .HasMaxLength(150);
 
-        builder.Property(room => room.CustomerPhone)
-            .HasMaxLength(30);
+        builder.Property(room =>
+            room.UpdatedAtUtc);
 
-        builder.Property(room => room.NumberOfDays)
-            .HasDefaultValue(0)
-            .IsRequired();
 
-        builder.Property(room => room.ReservationId);
+        builder.Property(room =>
+                room.IsDeleted)
+            .IsRequired()
+            .HasDefaultValue(false);
 
-        builder.Property(room => room.ReservationDate);
 
-        builder.Property(room => room.CheckInDate);
-
-        builder.Property(room => room.CheckOutDate);
+        builder.Property(room =>
+            room.DeletedAtUtc);
     }
 }

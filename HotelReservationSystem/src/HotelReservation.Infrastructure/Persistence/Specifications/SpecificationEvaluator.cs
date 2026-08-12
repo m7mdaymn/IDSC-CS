@@ -9,7 +9,8 @@ internal static class SpecificationEvaluator<TEntity>
 {
     public static IQueryable<TEntity> GetQuery(
         IQueryable<TEntity> inputQuery,
-        ISpecification<TEntity> specification)
+        ISpecification<TEntity> specification,
+        bool applyPaging = true)
     {
         var query = inputQuery;
 
@@ -41,7 +42,7 @@ internal static class SpecificationEvaluator<TEntity>
                 specification.OrderByDescending);
         }
 
-        if (specification.IsPagingEnabled)
+        if (applyPaging && specification.IsPagingEnabled)
         {
             query = query
                 .Skip(specification.Skip)

@@ -13,6 +13,8 @@ public sealed class HotelDbContext : DbContext
 
     public DbSet<Room> Rooms =>
         Set<Room>();
+    public DbSet<Reservation> Reservations =>
+        Set<Reservation>();
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
