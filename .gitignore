@@ -361,3 +361,117 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+
+
+
+
+
+
+
+
+# =========================
+# .NET Build Outputs
+# =========================
+**/bin/
+**/obj/
+
+# =========================
+# Visual Studio
+# =========================
+.vs/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# JetBrains Rider
+# =========================
+.idea/
+*.sln.iml
+
+# =========================
+# Build / Publish
+# =========================
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+publish/
+artifacts/
+
+# =========================
+# NuGet
+# =========================
+*.nupkg
+*.snupkg
+**/packages/
+
+# Keep NuGet build files if needed
+!**/packages/build/
+!**/packages/repositories.config
+
+# =========================
+# Test Results / Coverage
+# =========================
+TestResults/
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Local / Environment Files
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# ASP.NET Local Secrets
+# =========================
+secrets.json
+
+# =========================
+# Database Local Files
+# =========================
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# =========================
+# OS Files
+# =========================
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# =========================
+# Temporary Files
+# =========================
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
