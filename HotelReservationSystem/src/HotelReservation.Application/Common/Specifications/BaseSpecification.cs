@@ -39,6 +39,8 @@ public abstract class BaseSpecification<TEntity>
 
     public bool AsNoTracking { get; private set; } = true;
 
+    public bool IncludeSoftDeleted { get; private set; } = false;
+
     protected void AddInclude(
         Expression<Func<TEntity, object>> includeExpression)
     {
@@ -69,5 +71,10 @@ public abstract class BaseSpecification<TEntity>
     protected void EnableTracking()
     {
         AsNoTracking = false;
+    }
+
+    protected void IncludeSoftDeletedEntities()
+    {
+        IncludeSoftDeleted = true;
     }
 }

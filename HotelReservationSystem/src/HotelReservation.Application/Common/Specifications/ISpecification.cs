@@ -21,4 +21,6 @@ public interface ISpecification<TEntity>
     bool IsPagingEnabled { get; }
 
     bool AsNoTracking { get; }
+
+    bool IncludeSoftDeleted { get; }
 }

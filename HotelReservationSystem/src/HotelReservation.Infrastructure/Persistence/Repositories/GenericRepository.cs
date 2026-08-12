@@ -111,21 +111,23 @@ internal sealed class GenericRepository<TEntity>
     }
 
 
-    private IQueryable<TEntity> GetQueryRoot()
-    {
-        var query =
-            _dbSet.AsQueryable();
+ private IQueryable<TEntity> GetQueryRoot(
+    bool includeSoftDeleted = false)
+{
+    var query =
+        _dbSet.AsQueryable();
 
-        if (typeof(ISoftDeletable)
+    if (!includeSoftDeleted &&
+        typeof(ISoftDeletable)
             .IsAssignableFrom(typeof(TEntity)))
-        {
-            query =
-                query.Where(entity =>
-                    !EF.Property<bool>(
-                        entity,
-                        nameof(ISoftDeletable.IsDeleted)));
-        }
-
-        return query;
+    {
+        query =
+            query.Where(entity =>
+                !EF.Property<bool>(
+                    entity,
+                    nameof(ISoftDeletable.IsDeleted)));
     }
+
+    return query;
+}
 }
