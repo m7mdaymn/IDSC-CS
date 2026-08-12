@@ -12,6 +12,6 @@ public sealed class RoomByNumberSpecification
             room =>
                 room.RoomNumber == roomNumber)
     {
-        includeSoftDeletedEntities();
+        IncludeSoftDeletedEntities();
     }
 }
