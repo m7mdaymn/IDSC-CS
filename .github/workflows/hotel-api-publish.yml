@@ -1,0 +1,84 @@
+name: Publish Hotel Reservation API
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "HotelReservationSystem/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+
+      - name: Restore
+        run: >
+          dotnet restore
+          HotelReservationSystem/HotelReservationSystem.sln
+
+
+      - name: Build
+        run: >
+          dotnet build
+          HotelReservationSystem/HotelReservationSystem.sln
+          --configuration Release
+          --no-restore
+
+
+      - name: Publish API
+        run: >
+          dotnet publish
+          HotelReservationSystem/src/HotelReservation.Api/HotelReservation.Api.csproj
+          --configuration Release
+          --no-build
+          -p:PublishProfile=FolderProfile
+
+
+      - name: Push published files to hotel-deploy branch
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+
+          $publishDir = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "HotelReservationSystem\src\HotelReservation.Api\bin\Release\net9.0\publish"
+
+          Set-Location $publishDir
+
+          git init
+
+          git config user.name "github-actions[bot]"
+
+          git config user.email `
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b hotel-deploy
+
+          git add .
+
+          git commit -m "deploy: $env:GITHUB_SHA"
+
+          git remote add origin `
+            "https://x-access-token:$env:GITHUB_TOKEN@github.com/${{ github.repository }}.git"
+
+          git push --force origin hotel-deploy
