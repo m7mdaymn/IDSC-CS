@@ -1,5 +1,7 @@
 using HotelReservation.Application.Common.Interfaces.Persistence;
+using HotelReservation.Application.Features.Reports.Interfaces;
 using HotelReservation.Infrastructure.Persistence;
+using HotelReservation.Infrastructure.Reporting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +21,10 @@ public static class DependencyInjection
         services.AddScoped<
             IUnitOfWork,
             UnitOfWork>();
+
+        services.AddScoped<
+            IHotelReportReadService,
+            HotelReportReadService>();
 
         return services;
     }

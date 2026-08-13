@@ -46,6 +46,12 @@ public sealed class GlobalExceptionHandler
                         "Business rule violation"
                     ),
 
+                NotFoundException =>
+                    (
+                        StatusCodes.Status404NotFound,
+                        "Resource not found"
+                    ),
+
                 ConflictException =>
                     (
                         StatusCodes.Status409Conflict,
@@ -59,6 +65,7 @@ public sealed class GlobalExceptionHandler
                     )
             };
 
+
         if (statusCode ==
             StatusCodes.Status500InternalServerError)
         {
@@ -68,18 +75,27 @@ public sealed class GlobalExceptionHandler
                 httpContext.TraceIdentifier);
         }
 
+
         var problemDetails =
             new ProblemDetails
             {
-                Status = statusCode,
-                Title = title,
-                Detail = exception.Message,
+                Status =
+                    statusCode,
+
+                Title =
+                    title,
+
+                Detail =
+                    exception.Message,
+
                 Instance =
                     httpContext.Request.Path
             };
 
+
         problemDetails.Extensions["traceId"] =
             httpContext.TraceIdentifier;
+
 
         if (exception is
             ValidationException validationException)
@@ -92,6 +108,7 @@ public sealed class GlobalExceptionHandler
                     .ToDictionary(
                         group =>
                             group.Key,
+
                         group =>
                             group
                                 .Select(
@@ -101,8 +118,10 @@ public sealed class GlobalExceptionHandler
                                 .ToArray());
         }
 
+
         httpContext.Response.StatusCode =
             statusCode;
+
 
         return await
             _problemDetailsService.TryWriteAsync(
