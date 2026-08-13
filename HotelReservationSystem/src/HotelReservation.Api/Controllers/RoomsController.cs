@@ -4,6 +4,8 @@ using HotelReservation.Application.Features.Rooms.Commands.AddRoom;
 using HotelReservation.Application.Features.Rooms.Commands.DeleteRoom;
 using HotelReservation.Application.Features.Rooms.Queries.GetAvailableRooms;
 using HotelReservation.Application.Features.Rooms.Dtos;
+using HotelReservation.Application.Common.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +14,7 @@ namespace HotelReservation.Api.Controllers;
 
 [ApiController]
 [Route("api/rooms")]
+[Authorize]
 public sealed class RoomsController : ControllerBase
 {
     private readonly ISender _sender;
@@ -23,7 +26,7 @@ public sealed class RoomsController : ControllerBase
         _sender = sender;
     }
 
-
+    [Authorize(Policy = AppPolicies.ManageRooms)]
     [HttpPost]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -64,7 +67,7 @@ public sealed class RoomsController : ControllerBase
             response);
     }
 
-
+    [AllowAnonymous]
     [HttpGet("available")]
     [ProducesResponseType(
         typeof(PagedApiResponse<RoomDto>),
@@ -100,6 +103,7 @@ public async Task<ActionResult<PagedApiResponse<RoomDto>>>
 
     return Ok(response);
 }
+[Authorize(Policy = AppPolicies.ManageRooms)]
 [HttpDelete("{roomId:guid}")]
 [ProducesResponseType(
     StatusCodes.Status204NoContent)]

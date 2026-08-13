@@ -7,14 +7,20 @@ using Microsoft.IdentityModel.Tokens;
 using HotelReservation.Api.ExceptionHandling;
 using HotelReservation.Application;
 using HotelReservation.Infrastructure;
-using HotelReservation.Infrastructure.Identity;
+using HotelReservation.Api.Services;
+using HotelReservation.Application.Common.Interfaces.Identity;
+using HotelReservation.Api.OpenApi;
 
 var builder =
     WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddOpenApi();
+builder.Services.AddScoped<
+    ICurrentUserService,
+    CurrentUserService>();
+
+builder.Services.AddControllers();
 
 builder.Services.AddProblemDetails();
 
@@ -100,6 +106,14 @@ var connectionString =
 builder.Services.AddInfrastructure(
     connectionString);
 
+builder.Services.AddOpenApi(
+    options =>
+    {
+        options.AddDocumentTransformer<
+            BearerSecuritySchemeTransformer>();
+    });
+
+
 builder.Services.AddAuthorization(
     options =>
     {
@@ -161,6 +175,8 @@ await app.Services.SeedIdentityAsync();
 app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 

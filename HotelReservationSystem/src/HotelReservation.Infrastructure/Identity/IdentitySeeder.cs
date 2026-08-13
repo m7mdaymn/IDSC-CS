@@ -1,5 +1,6 @@
 using HotelReservation.Application.Common.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelReservation.Infrastructure.Identity;
@@ -19,6 +20,17 @@ public static class IdentitySeeder
                     RoleManager<IdentityRole<Guid>>>();
 
 
+        var userManager =
+            scope.ServiceProvider
+                .GetRequiredService<
+                    UserManager<ApplicationUser>>();
+
+
+        var configuration =
+            scope.ServiceProvider
+                .GetRequiredService<IConfiguration>();
+
+
         string[] roles =
         [
             AppRoles.Admin,
@@ -31,22 +43,109 @@ public static class IdentitySeeder
         foreach (var role in roles)
         {
             var exists =
-                await roleManager
-                    .RoleExistsAsync(
-                        role);
-
+                await roleManager.RoleExistsAsync(
+                    role);
 
             if (!exists)
             {
-                await roleManager.CreateAsync(
-                    new IdentityRole<Guid>
-                    {
-                        Id = Guid.NewGuid(),
+                var result =
+                    await roleManager.CreateAsync(
+                        new IdentityRole<Guid>
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = role
+                        });
 
-                        Name =
-                            role
-                    });
+                EnsureSucceeded(
+                    result,
+                    $"Creating role '{role}'");
             }
         }
+
+
+        var adminEmail =
+            configuration["SeedAdmin:Email"];
+
+        var adminPassword =
+            configuration["SeedAdmin:Password"];
+
+
+        if (string.IsNullOrWhiteSpace(adminEmail) ||
+            string.IsNullOrWhiteSpace(adminPassword))
+        {
+            return;
+        }
+
+
+        var admin =
+            await userManager.FindByEmailAsync(
+                adminEmail);
+
+
+        if (admin is null)
+        {
+            admin =
+                new ApplicationUser
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true
+                };
+
+
+            var createResult =
+                await userManager.CreateAsync(
+                    admin,
+                    adminPassword);
+
+
+            EnsureSucceeded(
+                createResult,
+                "Creating seeded admin");
+        }
+
+
+        var isAdmin =
+            await userManager.IsInRoleAsync(
+                admin,
+                AppRoles.Admin);
+
+
+        if (!isAdmin)
+        {
+            var roleResult =
+                await userManager.AddToRoleAsync(
+                    admin,
+                    AppRoles.Admin);
+
+
+            EnsureSucceeded(
+                roleResult,
+                "Assigning Admin role");
+        }
+    }
+
+
+    private static void EnsureSucceeded(
+        IdentityResult result,
+        string operation)
+    {
+        if (result.Succeeded)
+        {
+            return;
+        }
+
+
+        var errors =
+            string.Join(
+                "; ",
+                result.Errors.Select(
+                    error =>
+                        error.Description));
+
+
+        throw new InvalidOperationException(
+            $"{operation} failed: {errors}");
     }
 }

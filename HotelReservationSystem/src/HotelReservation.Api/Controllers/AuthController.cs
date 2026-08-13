@@ -6,6 +6,7 @@ using HotelReservation.Application.Features.Identity.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using HotelReservation.Application.Common.Interfaces.Identity;
 
 namespace HotelReservation.Api.Controllers;
 
@@ -15,14 +16,18 @@ public sealed class AuthController
     : ControllerBase
 {
     private readonly ISender _sender;
-
+    private readonly ICurrentUserService
+    _currentUser;
     public AuthController(
-        ISender sender)
+        ISender sender,
+        ICurrentUserService currentUser)
     {
         _sender =
             sender;
-    }
 
+        _currentUser =
+            currentUser;
+    }
 
     [AllowAnonymous]
     [HttpPost("register")]
@@ -73,4 +78,23 @@ public sealed class AuthController
                 "Login successful.",
                 HttpContext.TraceIdentifier));
     }
+
+    [Authorize]
+    [HttpGet("me")]
+    public ActionResult<object> Me()
+    {
+        return Ok(
+            new
+            {
+                userId =
+                    _currentUser.UserId,
+
+                email =
+                    _currentUser.Email,
+
+                roles =
+                    _currentUser.Roles
+            });
+    }
+
 }

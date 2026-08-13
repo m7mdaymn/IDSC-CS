@@ -4,6 +4,8 @@ using HotelReservation.Application.Features.Reservations.Commands.ReserveRoom;
 using HotelReservation.Application.Features.Reservations.Dtos;
 using HotelReservation.Application.Features.Reservations.Queries.SearchReservations;
 using HotelReservation.Application.Features.Reservations.Commands.CancelReservation;
+using HotelReservation.Application.Common.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +13,7 @@ namespace HotelReservation.Api.Controllers;
 
 [ApiController]
 [Route("api/reservations")]
+[Authorize(Policy = AppPolicies.ManageReservations)]
 public sealed class ReservationsController : ControllerBase
 {
     private readonly ISender _sender;
