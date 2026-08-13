@@ -39,6 +39,11 @@ public sealed class GlobalExceptionHandler
                         StatusCodes.Status400BadRequest,
                         "Validation failed"
                     ),
+                    UnauthorizedException =>
+                    (
+                        StatusCodes.Status401Unauthorized,
+                        "Unauthorized"
+                    ),
 
                 DomainException =>
                     (
