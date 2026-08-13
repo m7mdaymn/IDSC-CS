@@ -26,6 +26,18 @@ builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetSection(
         JwtOptions.SectionName));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowAll",
+        policy =>
+        {
+            policy
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
 
 var jwtOptions =
     builder.Configuration
@@ -133,8 +145,7 @@ builder.Services.AddAuthorization(
 var app =
     builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+
     app.MapOpenApi();
 
     app.UseSwaggerUI(options =>
@@ -143,7 +154,7 @@ if (app.Environment.IsDevelopment())
             "/openapi/v1.json",
             "Hotel Reservation API v1");
     });
-}
+
 
 await app.Services.SeedIdentityAsync();
 
